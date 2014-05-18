@@ -4,7 +4,7 @@ from time import sleep, time
 
 import HTMLParser
 import praw
-import re2 as re
+import re
 import yaml
 from requests.exceptions import HTTPError
 from sqlalchemy.sql import and_
@@ -126,10 +126,10 @@ class Condition(object):
 
             for field in key.split('+'):
                 match_fields.add(field)
-        
+
         # if type wasn't defined, set based on fields being matched against
         if not getattr(self, 'type', None):
-            if (len(match_fields) > 0 and 
+            if (len(match_fields) > 0 and
                 all(f in ('title', 'domain', 'url',
                            'media_user', 'media_title', 'media_description')
                      for f in match_fields)):
@@ -168,7 +168,7 @@ class Condition(object):
 
     def check_item(self, item):
         """Checks an item against the condition.
-        
+
         Returns True if the condition is satisfied, False otherwise.
         """
         # check number of reports if necessary
@@ -290,7 +290,7 @@ class Condition(object):
                     value = getattr(user, attr, 0)
             else:
                 value = 0
-                
+
             if operator == '<':
                 result = int(value) < int(compare)
             elif operator == '>':
@@ -310,7 +310,7 @@ class Condition(object):
 
     def execute_actions(self, item, match):
         """Performs the action(s) for the condition.
-        
+
         Also sends any comment/messages (if set) and creates a log entry.
         """
         if self.action or self.comment or self.modmail or self.message:
@@ -329,7 +329,7 @@ class Condition(object):
             item.report()
 
         # set flairs
-        if (isinstance(item, praw.objects.Submission) and 
+        if (isinstance(item, praw.objects.Submission) and
                 (self.link_flair_text or self.link_flair_class)):
             text = replace_placeholders(self.link_flair_text, item, match)
             css_class = replace_placeholders(self.link_flair_class, item, match)
@@ -560,7 +560,7 @@ def validate_keys(check):
     """Checks if all the keys in the condition are valid."""
     # check top-level keys
     valid_keys = set(Condition._match_targets +
-                     Condition._defaults.keys() + 
+                     Condition._defaults.keys() +
                      ['standard', 'type'])
     for key in check:
         if key in valid_keys:
@@ -722,17 +722,17 @@ def process_messages():
                 sleep_after = True
 
         # accept subreddit invites
-        for subreddit in invite_srs:
-            try:
-                # workaround for praw clearing mod sub list on accept
-                mod_subs = r.user._mod_subs
-                r.accept_moderator_invite(subreddit)
-                r.user._mod_subs = mod_subs
-                r.user._mod_subs[subreddit] = r.get_subreddit(subreddit)
-                logging.info('Accepted mod invite in /r/{0}'
-                             .format(subreddit))
-            except praw.errors.InvalidInvite:
-                pass
+        # for subreddit in invite_srs:
+        #     try:
+        #         # workaround for praw clearing mod sub list on accept
+        #         mod_subs = r.user._mod_subs
+        #         r.accept_moderator_invite(subreddit)
+        #         r.user._mod_subs = mod_subs
+        #         r.user._mod_subs[subreddit] = r.get_subreddit(subreddit)
+        #         logging.info('Accepted mod invite in /r/{0}'
+        #                      .format(subreddit))
+        #     except praw.errors.InvalidInvite:
+        #         pass
 
         # do requested updates from wiki pages
         updated_srs = []
@@ -988,7 +988,7 @@ def get_user_rank(user, subreddit):
     # fetch mod/contrib lists if necessary
     cached = False
     if sr_name in get_user_rank.moderator_cache:
-        cache_age = datetime.utcnow() - get_user_rank.cache_time[sr_name] 
+        cache_age = datetime.utcnow() - get_user_rank.cache_time[sr_name]
         if cache_age < timedelta(hours=1):
             cached = True
 
@@ -1153,7 +1153,6 @@ def get_enabled_subreddits(reload_mod_subs=True):
 def main():
     global r
     logging.config.fileConfig(path_to_cfg)
-    re.set_fallback_notification(re.FALLBACK_EXCEPTION)
 
     # which queues to check and the function to call
     queue_funcs = {'report': 'get_reports',
@@ -1191,7 +1190,7 @@ def main():
                 last_reports_check = time()
                 check_queues({'report': queue_funcs['report']},
                              sr_dict, cond_dict)
-                             
+
             check_queues({q: queue_funcs[q]
                           for q in queue_funcs
                           if q != 'report'},
