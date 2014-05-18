@@ -677,7 +677,7 @@ def process_messages():
     new_last_message = None
     update_srs = set()
     invite_srs = set()
-    sleep_after = False
+    sleep_after = True
 
     logging.debug('Checking messages')
 
